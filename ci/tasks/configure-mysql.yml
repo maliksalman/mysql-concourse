@@ -8,22 +8,18 @@ image_resource:
     repository: virtmerlin/c0-worker
 
 inputs:
-  - name: ert-concourse
+  - name: mysql-concourse
   - name: tool-om
   - name: json_file
 
 run:
-  path: ert-concourse/ci/tasks/configure-ert.sh
+  path: mysql-concourse/ci/tasks/configure-mysql.sh
 
 params:
-  pcf_iaas:
+  mysql_protections_recipient_email:
   pcf_ert_domain:
   pcf_opsman_admin:
   pcf_opsman_admin_passwd:
-  pcf_ert_ssl_cert:
-  pcf_ert_ssl_key:
   pcf_az_1:
   pcf_az_2:
   pcf_az_3:
-  terraform_template:
-  terraform_prefix:

@@ -1,5 +1,4 @@
 ---
-
 platform: linux
 
 image_resource:
@@ -8,11 +7,12 @@ image_resource:
     repository: virtmerlin/c0-worker
 
 inputs:
-  - name: ert-concourse
+  - name: mysql-concourse
   - name: tool-om
+  - name: pivnet-mysql
 
 run:
-  path: ert-concourse/ci/tasks/deploy-ert.sh
+  path: mysql-concourse/ci/tasks/upload-mysql.sh
 
 params:
   pcf_ert_domain:

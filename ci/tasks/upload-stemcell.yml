@@ -1,0 +1,26 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: virtmerlin/c0-worker
+
+inputs:
+  - name: stemcell-downloader
+  - name: mysql-concourse
+  - name: tool-om
+  - name: pivnet-mysql
+
+run:
+  path: mysql-concourse/ci/tasks/upload-stemcell.sh
+
+params:
+  pcf_ert_domain:
+  pcf_opsman_admin:
+  pcf_opsman_admin_passwd:
+  pcf_iaas:
+  pivnet_product: p_mysql
+  pivnet_tile_prefix: p-mysql
+  pivnet_dir: pivnet-mysql
+  

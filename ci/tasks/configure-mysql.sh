@@ -1,38 +1,19 @@
 #!/bin/bash
 set -e
 
-json_file="json_file/ert.json"
-
+json_file="json_file/mysql.json"
 
 # Setup OM Tool
 sudo cp tool-om/om-linux /usr/local/bin
 sudo chmod 755 /usr/local/bin/om-linux
 
 # Set Vars
-
-
-
-# Test if the ssl cert var from concourse is set to 'generate'.  If so, script will gen a self signed, otherwise will assume its a provided cert
-if [[ ${pcf_ert_ssl_cert} == "generate" ]]; then
-  echo "=============================================================================================="
-  echo "Generating Self Signed Certs for sys.${pcf_ert_domain} & cfapps.${pcf_ert_domain} ..."
-  echo "=============================================================================================="
-  ert-concourse/scripts/ssl/gen_ssl_certs.sh "sys.${pcf_ert_domain}" "cfapps.${pcf_ert_domain}"
-  export pcf_ert_ssl_cert=$(cat sys.${pcf_ert_domain}.crt)
-  export pcf_ert_ssl_key=$(cat sys.${pcf_ert_domain}.key)
-fi
-
-my_pcf_ert_ssl_cert=$(echo ${pcf_ert_ssl_cert} | sed 's/\s\+/\\\\r\\\\n/g' | sed 's/\\\\r\\\\nCERTIFICATE/ CERTIFICATE/g')
-my_pcf_ert_ssl_key=$(echo ${pcf_ert_ssl_key} | sed 's/\s\+/\\\\r\\\\n/g' | sed 's/\\\\r\\\\nRSA\\\\r\\\\nPRIVATE\\\\r\\\\nKEY/ RSA PRIVATE KEY/g')
-perl -pi -e "s|{{pcf_ert_ssl_cert}}|${my_pcf_ert_ssl_cert}|g" ${json_file}
-perl -pi -e "s|{{pcf_ert_ssl_key}}|${my_pcf_ert_ssl_key}|g" ${json_file}
-perl -pi -e "s/{{pcf_ert_domain}}/${pcf_ert_domain}/g" ${json_file}
 perl -pi -e "s/{{pcf_az_1}}/${pcf_az_1}/g" ${json_file}
 perl -pi -e "s/{{pcf_az_2}}/${pcf_az_2}/g" ${json_file}
 perl -pi -e "s/{{pcf_az_3}}/${pcf_az_3}/g" ${json_file}
-perl -pi -e "s/{{terraform_prefix}}/${terraform_prefix}/g" ${json_file}
 
-
+santized_email=$(echo "${mysql_protections_recipient_email}" | sed -e 's/\(.\+\)\@\(.\+\)/\1\\@\2/g')
+perl -pi -e "s/{{mysql_protections_recipient_email}}/${santized_email}/g" ${json_file}
 
 if [[ ! -f ${json_file} ]]; then
   echo "Error: cant find file=[${json_file}]"
@@ -69,17 +50,15 @@ function fn_om_linux_curl {
     fi
 }
 
-
-
 echo "=============================================================================================="
-echo "Deploying ERT @ https://opsman.$pcf_ert_domain ..."
+echo "Deploying mysql @ https://opsman.$pcf_ert_domain ..."
 echo "=============================================================================================="
 # Get cf Product Guid
 guid_cf=$(fn_om_linux_curl "GET" "/api/v0/staged/products" \
-            | jq '.[] | select(.type == "cf") | .guid' | tr -d '"' | grep "cf-.*")
+            | jq '.[] | select(.type == "p-mysql") | .guid' | tr -d '"' | grep "p-mysql-.*")
 
 echo "=============================================================================================="
-echo "Found ERT Deployment with guid of ${guid_cf}"
+echo "Found mysql Deployment with guid of ${guid_cf}"
 echo "=============================================================================================="
 
 # Set Networks & AZs
@@ -90,7 +69,7 @@ echo "==========================================================================
 json_net_and_az=$(cat ${json_file} | jq .networks_and_azs)
 fn_om_linux_curl "PUT" "/api/v0/staged/products/${guid_cf}/networks_and_azs" "${json_net_and_az}"
 
-# Set ERT Properties
+# Set mysql Properties
 echo "=============================================================================================="
 echo "Setting Properties for: ${guid_cf}"
 echo "=============================================================================================="

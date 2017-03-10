@@ -1,0 +1,36 @@
+{
+  "networks_and_azs":{
+    "networks_and_azs": {
+      "singleton_availability_zone": {
+        "name": "{{pcf_az_1}}"
+      },
+      "other_availability_zones": [
+        { "name": "{{pcf_az_1}}" },
+        { "name": "{{pcf_az_2}}" },
+        { "name": "{{pcf_az_3}}" }
+      ],
+      "network": {
+        "name": "ert"
+      }
+    }
+  },
+  "properties": {
+    "properties": {
+	  ".properties.optional_protections.enable.recipient_email": {
+		  "value": "{{mysql_protections_recipient_email}}"
+	  }
+    }
+  },
+  "jobs": {
+      "mysql": { "instance_type": { "id": "automatic" }, "instances": 3, "elb_names": [], "internet_connected": false, "persistent_disk": { "size_mb": "102400" } },
+      "backup-prepare": { "instance_type": { "id": "automatic" }, "instances": 0, "elb_names": [], "internet_connected": false, "persistent_disk": { "size_mb": "204800" } },
+      "proxy": { "instance_type": { "id": "automatic" }, "instances": 2, "elb_names": [], "internet_connected": false },
+      "monitoring": { "instance_type": { "id": "automatic" }, "instances": 1, "elb_names": [], "internet_connected": false },
+      "cf-mysql-broker": { "instance_type": { "id": "automatic" }, "instances": 2, "elb_names": [], "internet_connected": false },
+      "broker-registrar": { "instance_type": { "id": "automatic" }, "instances": 1, "elb_names": [], "internet_connected": false },
+      "deregister-and-purge-instances": { "instance_type": { "id": "automatic" }, "instances": 1, "elb_names": [], "internet_connected": false },
+      "rejoin-unsafe": { "instance_type": { "id": "automatic" }, "instances": 1, "elb_names": [], "internet_connected": false },
+      "smoke-tests": { "instance_type": { "id": "automatic" }, "instances": 1, "elb_names": [], "internet_connected": false },
+      "bootstrap": { "instance_type": { "id": "automatic" }, "instances": 1, "elb_names": [], "internet_connected": false }
+  }
+}
